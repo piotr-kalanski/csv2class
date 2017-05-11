@@ -96,7 +96,7 @@ package object csv2class {
   }
 
   trait ParseCSV[T] {
-    def apply[L <: HList](path: String)(implicit
+    def apply[L <: HList](path: String, delimiter: Char=',')(implicit
                                         ct: ClassTag[T],
                                         gen: Generic.Aux[T, L],
                                         fromRow: FromRow[L]
@@ -104,15 +104,15 @@ package object csv2class {
       val source = Source.fromFile(path)
       val lines = source.getLines()
       val fields = getClassFields
-      val header = parseHeader(lines.next())
+      val header = parseHeader(lines.next(), delimiter)
       val fieldsMapping = calculateFieldsPositions(header, fields)
-      parseContent(lines, fieldsMapping)
+      parseContent(lines, fieldsMapping, delimiter)
     }
 
-    private def parseHeader(header: String): Array[String] = {
+    private def parseHeader(header: String, delimiter: Char): Array[String] = {
       val settings = new CsvParserSettings
       val format = new CsvFormat()
-      format.setDelimiter(',')
+      format.setDelimiter(delimiter)
       settings.setFormat(format)
       val parser = new CsvParser(settings)
       parser.parseLine(header)
@@ -133,13 +133,13 @@ package object csv2class {
         } yield fields.indexOf(h) -> header.indexOf(f)
         ).toMap
 
-    private def parseContent[L <: HList](lines: Iterator[String], fieldsMapping: Map[Int, Int])
+    private def parseContent[L <: HList](lines: Iterator[String], fieldsMapping: Map[Int, Int], delimiter: Char)
                             (implicit gen: Generic.Aux[T, L], fromRow: FromRow[L])
     : (Iterable[T], Iterable[Throwable]) = {
       val rowParserFor = new RowParser[T] {}
       val settings = new CsvParserSettings
       val format = new CsvFormat()
-      format.setDelimiter(',')
+      format.setDelimiter(delimiter)
       settings.setFormat(format)
       settings.selectIndexes(
         (0 until fieldsMapping.size).map(i => new Integer(fieldsMapping(i))): _*

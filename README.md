@@ -76,3 +76,11 @@ println(result)
 Foo("first",10),
 Foo("second",11)
 ```
+
+# Customizations
+
+## Change delimiter
+
+```scala
+ParseCSV[Foo]("file.csv", ';')
+```

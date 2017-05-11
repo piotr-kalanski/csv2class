@@ -54,6 +54,47 @@ class Csv2ClassTest extends FunSuite {
     }
   }
 
+  test("Dates") {
+    val result = ParseCSV[ClassWithDate]("src/test/resources/dates.csv")
+
+    assert(Math.abs(result._1.head.date.getTime - date(2000,1,2).getTime) < 1000)
+    assert(Math.abs(result._1.tail.head.date.getTime - date(2000,2,3).getTime) < 1000)
+
+    assertResult(true) {
+      result._2.isEmpty
+    }
+  }
+
+  test("CSV file with one not correct line") {
+    val result = ParseCSV[Foo]("src/test/resources/foo_not_correct.csv")
+
+    assertResult(Iterable(
+      Foo("first",10),
+      Foo("second",11)
+    )) {
+      result._1
+    }
+
+    assertResult(1) {
+      result._2.size
+    }
+  }
+
+  test("CSV file with ; delimiter") {
+    val result = ParseCSV[Foo]("src/test/resources/foo_delimiter.csv", ';')
+
+    assertResult(Iterable(
+      Foo("first",10),
+      Foo("second",11)
+    )) {
+      result._1
+    }
+
+    assertResult(true) {
+      result._2.isEmpty
+    }
+  }
+
   private def date(year: Int, month: Int, day: Int): Date = {
     val cal = Calendar.getInstance()
     cal.set(year, month-1, day, 0, 0, 0)
