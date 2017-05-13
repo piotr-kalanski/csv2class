@@ -131,6 +131,28 @@ class Csv2ClassTest extends FunSuite {
     }
   }
 
+  test("CSV file without header and custom separator") {
+    val result = parseCSV[Foo](
+      path = "src/test/resources/foo_without_header_and_custom_format.csv",
+      delimiter = ';',
+      header = false,
+      columns = Seq("s","i")
+    )
+
+    assertResult(Iterable(
+      Foo("p1", 10),
+      Foo("p2", 20),
+      Foo("p3", 30),
+      Foo("p;4", 40)
+    )) {
+      result._1
+    }
+
+    assertResult(true) {
+      result._2.isEmpty
+    }
+  }
+
   private def date(year: Int, month: Int, day: Int): Date = {
     val cal = Calendar.getInstance()
     cal.set(year, month-1, day, 0, 0, 0)
