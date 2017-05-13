@@ -1,5 +1,5 @@
 # csv2class
-CSV reader with conversion to Scala case class
+CSV reader/write with conversion to Scala case class
 
 [![Build Status](https://api.travis-ci.org/piotr-kalanski/csv2class.png?branch=development)](https://api.travis-ci.org/piotr-kalanski/csv2class.png?branch=development)
 [![codecov.io](http://codecov.io/github/piotr-kalanski/csv2class/coverage.svg?branch=development)](http://codecov.io/github/piotr-kalanski/csv2class/coverage.svg?branch=development)
@@ -15,6 +15,7 @@ CSV reader with conversion to Scala case class
 # Goals
 
 - Read and convert CSV files to Scala case classes
+- Write Scala case classes to CSV
 
 # Getting started
 

@@ -2,6 +2,7 @@ package com.datawizards.csv2class
 
 import java.util.{Calendar, Date}
 
+import com.datawizards.model.{ClassWithAllTypes, ClassWithDate, Foo}
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
