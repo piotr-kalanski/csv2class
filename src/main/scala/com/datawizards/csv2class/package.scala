@@ -2,6 +2,7 @@ package com.datawizards
 
 import java.util.Date
 
+import com.datawizards.metadata.ClassMetadata
 import com.univocity.parsers.csv.{CsvFormat, CsvParser, CsvParserSettings}
 import shapeless._
 
@@ -121,12 +122,6 @@ package object csv2class {
         parser.parseLine(header).toSeq
       }
 
-      def getClassFields(implicit ct:ClassTag[T]): Seq[String] =
-        implicitly[ClassTag[T]]
-          .runtimeClass
-          .getDeclaredFields
-          .map(f => f.getName)
-
       def calculateFieldsPositions(header: Seq[String], fields: Seq[String]): Map[Int, Int] =
         (
           for {
@@ -165,7 +160,7 @@ package object csv2class {
 
       val source = Source.fromFile(path)
       val lines = source.getLines()
-      val fields = getClassFields
+      val fields = ClassMetadata.getClassFields[T]
       val headerColumns = if(header) parseHeader(lines.next()) else columns
       val fieldsMapping = calculateFieldsPositions(headerColumns, fields)
       parseContent(lines, fieldsMapping, delimiter)

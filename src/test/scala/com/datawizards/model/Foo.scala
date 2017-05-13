@@ -1,3 +1,3 @@
-package com.datawizards.csv2class
+package com.datawizards.model
 
 case class Foo(s: String, i: Int)

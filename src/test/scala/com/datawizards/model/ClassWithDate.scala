@@ -1,4 +1,4 @@
-package com.datawizards.csv2class
+package com.datawizards.model
 
 import java.util.Date
 
