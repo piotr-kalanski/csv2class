@@ -91,78 +91,85 @@ package object csv2class {
     ): Try[A] = fromRow(row).map(gen. from)
   }
 
-  object ParseCSV {
+  object parseCSV {
     def apply[T]: ParseCSV[T] = new ParseCSV[T] {}
   }
 
   trait ParseCSV[T] {
-    def apply[L <: HList](path: String, delimiter: Char=',')(implicit
-                                        ct: ClassTag[T],
-                                        gen: Generic.Aux[T, L],
-                                        fromRow: FromRow[L]
+    def apply[L <: HList](
+        path: String,
+        delimiter: Char = ',',
+        header: Boolean = true,
+        columns: Seq[String] = Seq.empty,
+        escape: Char = '"',
+        quote: Char = '"'
+    )
+    (implicit
+        ct: ClassTag[T],
+        gen: Generic.Aux[T, L],
+        fromRow: FromRow[L]
     ): (Iterable[T], Iterable[Throwable]) = {
+      val format = new CsvFormat()
+      format.setDelimiter(delimiter)
+      format.setQuote(quote)
+      format.setQuoteEscape(escape)
+
+      def parseHeader(header: String): Seq[String] = {
+        val settings = new CsvParserSettings
+        settings.setFormat(format)
+        val parser = new CsvParser(settings)
+        parser.parseLine(header).toSeq
+      }
+
+      def getClassFields(implicit ct:ClassTag[T]): Seq[String] =
+        implicitly[ClassTag[T]]
+          .runtimeClass
+          .getDeclaredFields
+          .map(f => f.getName)
+
+      def calculateFieldsPositions(header: Seq[String], fields: Seq[String]): Map[Int, Int] =
+        (
+          for {
+            f <- fields
+            h <- header
+            if f == h
+          } yield fields.indexOf(h) -> header.indexOf(f)
+          ).toMap
+
+      def parseContent(lines: Iterator[String], fieldsMapping: Map[Int, Int], delimiter: Char)
+      : (Iterable[T], Iterable[Throwable]) = {
+        val rowParserFor = new RowParser[T] {}
+        val settings = new CsvParserSettings
+        settings.setFormat(format)
+        settings.selectIndexes(
+          (0 until fieldsMapping.size).map(i => new Integer(fieldsMapping(i))): _*
+        )
+        val parser = new CsvParser(settings)
+        val convertedLines = for {
+          line <- lines
+          parsedLine = parser.parseLine(line)
+        } yield rowParserFor(parsedLine.toList)
+
+        val iterable = convertedLines.toIterable
+
+        val (s,f) = iterable.span {
+          case _:Success[T] => true
+          case _:Failure[T] => false
+        }
+
+        (
+          s.map (x => x.get),
+          f.map (x => x.failed.get)
+        )
+      }
+
       val source = Source.fromFile(path)
       val lines = source.getLines()
       val fields = getClassFields
-      val header = parseHeader(lines.next(), delimiter)
-      val fieldsMapping = calculateFieldsPositions(header, fields)
+      val headerColumns = if(header) parseHeader(lines.next()) else columns
+      val fieldsMapping = calculateFieldsPositions(headerColumns, fields)
       parseContent(lines, fieldsMapping, delimiter)
     }
-
-    private def parseHeader(header: String, delimiter: Char): Array[String] = {
-      val settings = new CsvParserSettings
-      val format = new CsvFormat()
-      format.setDelimiter(delimiter)
-      settings.setFormat(format)
-      val parser = new CsvParser(settings)
-      parser.parseLine(header)
-    }
-
-    private def getClassFields(implicit ct:ClassTag[T]): Seq[String] =
-      implicitly[ClassTag[T]]
-        .runtimeClass
-        .getDeclaredFields
-        .map(f => f.getName)
-
-    private def calculateFieldsPositions(header: Seq[String], fields: Seq[String]): Map[Int, Int] =
-      (
-        for {
-          f <- fields
-          h <- header
-          if f == h
-        } yield fields.indexOf(h) -> header.indexOf(f)
-        ).toMap
-
-    private def parseContent[L <: HList](lines: Iterator[String], fieldsMapping: Map[Int, Int], delimiter: Char)
-                            (implicit gen: Generic.Aux[T, L], fromRow: FromRow[L])
-    : (Iterable[T], Iterable[Throwable]) = {
-      val rowParserFor = new RowParser[T] {}
-      val settings = new CsvParserSettings
-      val format = new CsvFormat()
-      format.setDelimiter(delimiter)
-      settings.setFormat(format)
-      settings.selectIndexes(
-        (0 until fieldsMapping.size).map(i => new Integer(fieldsMapping(i))): _*
-      )
-      val parser = new CsvParser(settings)
-      val convertedLines = for {
-        line <- lines
-        parsedLine = parser.parseLine(line)
-      } yield rowParserFor(parsedLine.toList)
-
-      val iterable = convertedLines.toIterable
-
-      val (s,f) = iterable.span {
-        case _:Success[T] => true
-        case _:Failure[T] => false
-      }
-
-      (
-        s.map (x => x.get),
-        f.map (x => x.failed.get)
-      )
-    }
-
   }
 
 }

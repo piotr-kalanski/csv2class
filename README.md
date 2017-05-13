@@ -39,7 +39,7 @@ or
 ## Basic example:
 
 CSV file:
-```csv
+```
 s,i
 first,10
 second,11
@@ -48,10 +48,10 @@ second,11
 Parsing command:
 ```scala
 case class Foo(s: String, i: Int)
-val result = ParseCSV[Foo]("foo.csv")
-println(result)
+parseCSV[Foo]("foo.csv")
 ```
 
+result:
 ```scala
 Foo("first",10),
 Foo("second",11)
@@ -68,13 +68,34 @@ i,s
 
 Parsing command:
 ```scala
-val result = ParseCSV[Foo]("foo.csv")
-println(result)
+parseCSV[Foo]("foo.csv")
 ```
 
+result:
 ```scala
 Foo("first",10),
 Foo("second",11)
+```
+
+## Returning not parsed rows
+
+CSV file:
+```
+s,i
+first,10
+second,11
+third,third
+```
+
+```scala
+parseCSV[Foo]("foo.csv")
+```
+
+result:
+```scala
+Foo(first,10)
+Foo(second,11)
+java.lang.NumberFormatException: For input string: "third"
 ```
 
 # Customizations
@@ -82,5 +103,11 @@ Foo("second",11)
 ## Change delimiter
 
 ```scala
-ParseCSV[Foo]("file.csv", ';')
+parseCSV[Foo]("file.csv", ';')
+```
+
+## CSV without header
+
+```scala
+parseCSV[Foo]("file.csv", header = false, columns = Seq("s","i"))
 ```
