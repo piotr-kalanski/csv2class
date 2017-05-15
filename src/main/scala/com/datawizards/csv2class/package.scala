@@ -57,6 +57,11 @@ package object csv2class {
       private val format = new java.text.SimpleDateFormat("yyyy-MM-dd")
       def reads(s: String) = Try(format.parse(s))
     }
+
+    implicit object bigIntRead extends Read[BigInt] {
+      def reads(s: String) = Try(BigInt(s))
+    }
+
   }
 
   trait FromRow[L <: HList] { def apply(row: List[String]): Try[L] }

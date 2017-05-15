@@ -1,5 +1,5 @@
 # csv2class
-Generic CSV reader/write with conversion to Scala case class without boilerplate
+Generic CSV reader/writer with conversion to Scala case class without boilerplate
 
 [![Build Status](https://api.travis-ci.org/piotr-kalanski/csv2class.png?branch=development)](https://api.travis-ci.org/piotr-kalanski/csv2class.png?branch=development)
 [![codecov.io](http://codecov.io/github/piotr-kalanski/csv2class/coverage.svg?branch=development)](http://codecov.io/github/piotr-kalanski/csv2class/coverage.svg?branch=development)

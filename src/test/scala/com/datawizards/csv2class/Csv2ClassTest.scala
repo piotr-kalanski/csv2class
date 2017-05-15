@@ -44,8 +44,8 @@ class Csv2ClassTest extends FunSuite {
     val result = parseCSV[ClassWithAllTypes]("src/test/resources/all_types.csv")
 
     assertResult(Iterable(
-      ClassWithAllTypes("s1",1,2L,3.0,4.0f,5,bool=true,'a',6),
-      ClassWithAllTypes("s2",21,22L,23.0,24.0f,25,bool=false,'b',26)
+      ClassWithAllTypes("s1",1,2L,3.0,4.0f,5,bool=true,'a',6, BigInt(9999)),
+      ClassWithAllTypes("s2",21,22L,23.0,24.0f,25,bool=false,'b',26, BigInt(9999))
     )) {
       result._1
     }
