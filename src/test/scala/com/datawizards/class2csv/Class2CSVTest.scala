@@ -107,9 +107,10 @@ class Class2CSVTest extends FunSuite {
     )
 
     writeCSV(
-      data,
+      data = data,
       path = file,
       delimiter = ';',
+      header = true,
       columns = Seq("s2","i2")
     )
     val expected =
