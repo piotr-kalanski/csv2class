@@ -1,5 +1,5 @@
 # csv2class
-Generic CSV reader/write with conversion to Scala case class without boilerplate
+Generic CSV reader/writer with conversion to Scala case class without boilerplate
 
 [![Build Status](https://api.travis-ci.org/piotr-kalanski/csv2class.png?branch=development)](https://api.travis-ci.org/piotr-kalanski/csv2class.png?branch=development)
 [![codecov.io](http://codecov.io/github/piotr-kalanski/csv2class/coverage.svg?branch=development)](http://codecov.io/github/piotr-kalanski/csv2class/coverage.svg?branch=development)
@@ -23,7 +23,7 @@ Generic CSV reader/write with conversion to Scala case class without boilerplate
 Include dependency:
 
 ```scala
-"com.github.piotr-kalanski" % "csv2class_2.11" % "0.2.0"
+"com.github.piotr-kalanski" % "csv2class_2.11" % "0.2.1"
 ```
 
 or
@@ -32,7 +32,7 @@ or
 <dependency>
     <groupId>com.github.piotr-kalanski</groupId>
     <artifactId>csv2class_2.11</artifactId>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
 </dependency>
 ```
 

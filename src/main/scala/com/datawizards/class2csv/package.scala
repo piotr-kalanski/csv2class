@@ -52,6 +52,9 @@ package object class2csv {
     implicit val dateEnc: CsvEncoder[Date] =
       createEncoder(date => List(date.toString))
 
+    implicit val bigIntEnc: CsvEncoder[BigInt] =
+      createEncoder(num => List(num.toString))
+
     implicit val hnilEncoder: CsvEncoder[HNil] =
       createEncoder(hnil => Nil)
 

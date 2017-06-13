@@ -29,15 +29,15 @@ class Class2CSVTest extends FunSuite {
   test("All types") {
     val file = "target/all_types.csv"
     val data = Seq(
-      ClassWithAllTypes("s1",1,2L,3.0,4.0f,5,bool=true,'a',6),
-      ClassWithAllTypes("s2",21,22L,23.0,24.0f,25,bool=false,'b',26)
+      ClassWithAllTypes("s1",1,2L,3.0,4.0f,5,bool=true,'a',6, BigInt(9999)),
+      ClassWithAllTypes("s2",21,22L,23.0,24.0f,25,bool=false,'b',26, BigInt(9999))
     )
 
     writeCSV(data, file)
     val expected =
-      """str,int,long,double,float,short,bool,char,byte
-        |s1,1,2,3.0,4.0,5,true,a,6
-        |s2,21,22,23.0,24.0,25,false,b,26""".stripMargin
+      """str,int,long,double,float,short,bool,char,byte,bigint
+        |s1,1,2,3.0,4.0,5,true,a,6,9999
+        |s2,21,22,23.0,24.0,25,false,b,26,9999""".stripMargin
 
     assertResult(expected) {
       readFileContent(file)
@@ -107,7 +107,7 @@ class Class2CSVTest extends FunSuite {
     )
 
     writeCSV(
-      data,
+      data = data,
       path = file,
       delimiter = ';',
       header = true,

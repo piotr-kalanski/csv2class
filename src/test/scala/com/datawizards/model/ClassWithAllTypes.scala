@@ -9,5 +9,6 @@ case class ClassWithAllTypes(
   short : Short,
   bool  : Boolean,
   char  : Char,
-  byte  : Byte
+  byte  : Byte,
+  bigint: BigInt
 )
