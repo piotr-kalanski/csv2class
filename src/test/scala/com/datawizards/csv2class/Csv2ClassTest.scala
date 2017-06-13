@@ -96,11 +96,29 @@ class Csv2ClassTest extends FunSuite {
     }
   }
 
-  test("CSV file without header") {
-    val result = parseCSV[Foo](
+  test("CSV file without header - provide column names") {
+    val result = readCSV[Foo](
       path = "src/test/resources/foo_without_header.csv",
       header = false,
       columns = Seq("s","i")
+    )
+
+    assertResult(Iterable(
+      Foo("first",10),
+      Foo("second",11)
+    )) {
+      result._1
+    }
+
+    assertResult(true) {
+      result._2.isEmpty
+    }
+  }
+
+  test("CSV file without header - column names from class") {
+    val result = parseCSV[Foo](
+      path = "src/test/resources/foo_without_header.csv",
+      header = false
     )
 
     assertResult(Iterable(

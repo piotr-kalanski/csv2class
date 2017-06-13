@@ -101,6 +101,10 @@ package object csv2class {
     def apply[T]: ParseCSV[T] = new ParseCSV[T] {}
   }
 
+  object readCSV {
+    def apply[T]: ParseCSV[T] = new ParseCSV[T] {}
+  }
+
   trait ParseCSV[T] {
     def apply[L <: HList](
         path: String,
@@ -166,7 +170,10 @@ package object csv2class {
       val source = Source.fromFile(path)
       val lines = source.getLines()
       val fields = ClassMetadata.getClassFields[T]
-      val headerColumns = if(header) parseHeader(lines.next()) else columns
+      val headerColumns =
+        if(header) parseHeader(lines.next())
+        else if (columns.isEmpty) fields
+        else columns
       val fieldsMapping = calculateFieldsPositions(headerColumns, fields)
       parseContent(lines, fieldsMapping, delimiter)
     }
