@@ -55,6 +55,13 @@ package object class2csv {
     implicit val bigIntEnc: CsvEncoder[BigInt] =
       createEncoder(num => List(num.toString))
 
+    implicit def optionEnc[T](implicit innerEncoder: CsvEncoder[T]): CsvEncoder[Option[T]] =
+      new CsvEncoder[Option[T]] {
+        def encode(value: Option[T]): List[String] =
+          if(value.isDefined) innerEncoder.encode(value.get)
+          else List("")
+      }
+
     implicit val hnilEncoder: CsvEncoder[HNil] =
       createEncoder(hnil => Nil)
 
