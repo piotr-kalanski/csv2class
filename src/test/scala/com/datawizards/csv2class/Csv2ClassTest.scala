@@ -2,7 +2,7 @@ package com.datawizards.csv2class
 
 import java.util.{Calendar, Date}
 
-import com.datawizards.model.{ClassWithAllTypes, ClassWithDate, Foo}
+import com.datawizards.model.{ClassWithAllTypes, ClassWithDate, Foo, PersonV2}
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
@@ -169,6 +169,25 @@ class Csv2ClassTest extends FunSuite {
 
     assertResult(true) {
       result._2.isEmpty
+    }
+  }
+
+  test("Option type read") {
+    val result = parseCSV[PersonV2](
+      path = "src/test/resources/people.csv",
+      delimiter = ';'
+    )
+
+    assertResult(Iterable(
+      PersonV2("p1", 10, Some("Developer"), Some(1000L)),
+      PersonV2("p2", 20, None, Some(2000L)),
+      PersonV2("p3", 30, None, None)
+    )) {
+      result._1
+    }
+
+    assertResult(1) {
+      result._2.size
     }
   }
 

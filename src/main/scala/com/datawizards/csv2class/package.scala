@@ -6,6 +6,7 @@ import com.datawizards.metadata.ClassMetadata
 import com.univocity.parsers.csv.{CsvFormat, CsvParser, CsvParserSettings}
 import shapeless._
 
+import scala.collection.mutable.ListBuffer
 import scala.reflect.ClassTag
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
@@ -62,6 +63,20 @@ package object csv2class {
       def reads(s: String) = Try(BigInt(s))
     }
 
+    implicit def optionRead[T](implicit innerRead: Read[T]): Read[Option[T]] = new Read[Option[T]] {
+      override def reads(s: String): Try[Option[T]] = {
+        if(isEmpty(s)) Success(None)
+        else {
+          val innerResult = innerRead.reads(s)
+          innerResult match {
+            case s:Success[T] => Success(Some(s.value))
+            case f:Failure[T] => Failure(f.exception)
+          }
+        }
+      }
+    }
+
+    private def isEmpty(s: String): Boolean = s == null || s.isEmpty
   }
 
   trait FromRow[L <: HList] { def apply(row: List[String]): Try[L] }
@@ -106,6 +121,7 @@ package object csv2class {
   }
 
   trait ParseCSV[T] {
+
     def apply[L <: HList](
         path: String,
         delimiter: Char = ',',
@@ -114,7 +130,7 @@ package object csv2class {
         escape: Char = '"',
         quote: Char = '"'
     )
-    (implicit
+                         (implicit
         ct: ClassTag[T],
         gen: Generic.Aux[T, L],
         fromRow: FromRow[L]
@@ -152,7 +168,7 @@ package object csv2class {
         val convertedLines = for {
           line <- lines
           parsedLine = parser.parseLine(line)
-        } yield rowParserFor(parsedLine.toList)
+        } yield rowParserFor(mapUnivocityResult(parsedLine, fieldsMapping.size))
 
         val iterable = convertedLines.toIterable
 
@@ -176,6 +192,14 @@ package object csv2class {
         else columns
       val fieldsMapping = calculateFieldsPositions(headerColumns, fields)
       parseContent(lines, fieldsMapping, delimiter)
+    }
+
+    def mapUnivocityResult(line: Array[String], fieldsCount: Int): List[String] = {
+      val buffer = new ListBuffer[String]
+      buffer ++= line
+      for(i <- 0 until fieldsCount - line.length)
+        buffer += ""
+      buffer.toList
     }
   }
 
