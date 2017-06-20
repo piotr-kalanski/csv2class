@@ -11,6 +11,7 @@ Generic CSV reader/writer with conversion to Scala case class without boilerplat
 - [Goals](#goals)
 - [Getting started](#getting-started)
 - [Examples](#examples)
+- [Versioning support](#versioning-support)
 - [Customizations](#customizations)
 
 # Goals
@@ -124,6 +125,52 @@ val data = Seq(
 
 writeCSV(data, file)
 ```
+
+# Versioning support
+
+First write below data to CSV:
+
+```scala
+case class PersonV2(name: String, age: Int, title: Option[String])
+val peopleV2 = Seq(
+    PersonV2("p1", 10, Some("Developer")),
+    PersonV2("p2", 20, None),
+    PersonV2("p3", 30, None)
+)
+writeCSV(peopleV2, file)
+```
+
+Read CSV file with previous version of compatible Person model:
+```scala
+case class Person(name: String, age: Int)
+parseCSV[Person](file)
+```
+
+result:
+```scala
+Seq(
+  Person("p1", 10),
+  Person("p2", 20),
+  Person("p3", 30)
+)
+```
+
+Read CSV file using newer compatible Person model version - new columns should be `Option` type.
+
+```scala
+case class PersonV3(name: String, age: Int, title: Option[String], salary: Option[Long])
+parseCSV[PersonV3](file)
+```
+
+result:
+```scala
+Seq(
+  PersonV3("p1", 10, Some("Developer"), None),
+  PersonV3("p2", 20, None, None),
+  PersonV3("p3", 30, None, None)
+)
+```
+
 
 # Customizations
 

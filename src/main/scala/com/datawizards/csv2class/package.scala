@@ -139,6 +139,7 @@ package object csv2class {
       format.setDelimiter(delimiter)
       format.setQuote(quote)
       format.setQuoteEscape(escape)
+      val fields = ClassMetadata.getClassFields[T]
 
       def parseHeader(header: String): Seq[String] = {
         val settings = new CsvParserSettings
@@ -168,7 +169,7 @@ package object csv2class {
         val convertedLines = for {
           line <- lines
           parsedLine = parser.parseLine(line)
-        } yield rowParserFor(mapUnivocityResult(parsedLine, fieldsMapping.size))
+        } yield rowParserFor(mapUnivocityResult(parsedLine, fields.size))
 
         val iterable = convertedLines.toIterable
 
@@ -185,7 +186,6 @@ package object csv2class {
 
       val source = Source.fromFile(path)
       val lines = source.getLines()
-      val fields = ClassMetadata.getClassFields[T]
       val headerColumns =
         if(header) parseHeader(lines.next())
         else if (columns.isEmpty) fields

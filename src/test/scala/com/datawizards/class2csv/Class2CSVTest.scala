@@ -1,6 +1,6 @@
 package com.datawizards.class2csv
 
-import com.datawizards.model.{ClassWithAllTypes, Foo, PersonV2}
+import com.datawizards.model.{ClassWithAllTypes, Foo, PersonV3}
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
@@ -128,9 +128,9 @@ class Class2CSVTest extends FunSuite {
   test("Write option") {
     val file = "target/personV2.csv"
     val data = Seq(
-      PersonV2("p1", 10, Some("Developer"), Some(1000L)),
-      PersonV2("p2", 20, None, Some(2000L)),
-      PersonV2("p3", 30, None, None)
+      PersonV3("p1", 10, Some("Developer"), Some(1000L)),
+      PersonV3("p2", 20, None, Some(2000L)),
+      PersonV3("p3", 30, None, None)
     )
 
     writeCSV(
