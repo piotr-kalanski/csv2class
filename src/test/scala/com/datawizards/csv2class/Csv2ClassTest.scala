@@ -2,7 +2,7 @@ package com.datawizards.csv2class
 
 import java.util.{Calendar, Date}
 
-import com.datawizards.model.{ClassWithAllTypes, ClassWithDate, Foo, PersonV2}
+import com.datawizards.model._
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
@@ -173,15 +173,53 @@ class Csv2ClassTest extends FunSuite {
   }
 
   test("Option type read") {
-    val result = parseCSV[PersonV2](
+    val result = parseCSV[PersonV3](
       path = "src/test/resources/people.csv",
       delimiter = ';'
     )
 
     assertResult(Iterable(
-      PersonV2("p1", 10, Some("Developer"), Some(1000L)),
-      PersonV2("p2", 20, None, Some(2000L)),
-      PersonV2("p3", 30, None, None)
+      PersonV3("p1", 10, Some("Developer"), Some(1000L)),
+      PersonV3("p2", 20, None, Some(2000L)),
+      PersonV3("p3", 30, None, None)
+    )) {
+      result._1
+    }
+
+    assertResult(1) {
+      result._2.size
+    }
+  }
+
+  test("Read only columns that exists in class") {
+    val result = parseCSV[Person](
+      path = "src/test/resources/people_v2.csv",
+      delimiter = ';'
+    )
+
+    assertResult(Iterable(
+      Person("p1", 10),
+      Person("p2", 20),
+      Person("p3", 30)
+    )) {
+      result._1
+    }
+
+    assertResult(1) {
+      result._2.size
+    }
+  }
+
+  test("Read only columns that exists in class - default value for Option type") {
+    val result = parseCSV[PersonV3](
+      path = "src/test/resources/people_v2.csv",
+      delimiter = ';'
+    )
+
+    assertResult(Iterable(
+      PersonV3("p1", 10, Some("Developer"), None),
+      PersonV3("p2", 20, None, None),
+      PersonV3("p3", 30, None, None)
     )) {
       result._1
     }
