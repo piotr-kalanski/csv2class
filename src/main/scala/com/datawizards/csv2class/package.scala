@@ -13,6 +13,12 @@ import scala.util.{Failure, Success, Try}
 
 package object csv2class {
 
+  /*sealed trait FieldNamesSource
+  case object ClassFieldNamesSource extends FieldNamesSource
+  case object CsvHeaderFieldNamesSource extends FieldNamesSource
+  case object CustomFieldNamesSource extends FieldNamesSource
+  case object DefaultFieldNamesSource extends FieldNamesSource
+*/
   trait Read[A] { def reads(s: String): Try[A] }
 
   object Read {
@@ -123,12 +129,12 @@ package object csv2class {
   trait ParseCSV[T] {
 
     def apply[L <: HList](
-        path: String,
-        delimiter: Char = ',',
-        header: Boolean = true,
-        columns: Seq[String] = Seq.empty,
-        escape: Char = '"',
-        quote: Char = '"'
+                           path: String,
+                           delimiter: Char = ',',
+                           header: Boolean = true,
+                           customColumns: Seq[String] = Seq.empty,
+                           escape: Char = '"',
+                           quote: Char = '"'
     )
                          (implicit
         ct: ClassTag[T],
@@ -148,13 +154,13 @@ package object csv2class {
         parser.parseLine(header).toSeq
       }
 
-      def calculateFieldsPositions(header: Seq[String], fields: Seq[String]): Map[Int, Int] =
+      def calculateFieldsPositions(sourceColumns: Seq[String], targetColumns: Seq[String]): Map[Int, Int] =
         (
           for {
-            f <- fields
-            h <- header
+            f <- targetColumns
+            h <- sourceColumns
             if f == h
-          } yield fields.indexOf(h) -> header.indexOf(f)
+          } yield targetColumns.indexOf(h) -> sourceColumns.indexOf(f)
           ).toMap
 
       def parseContent(lines: Iterator[String], fieldsMapping: Map[Int, Int], delimiter: Char)
@@ -186,11 +192,22 @@ package object csv2class {
 
       val source = Source.fromFile(path)
       val lines = source.getLines()
-      val headerColumns =
-        if(header) parseHeader(lines.next())
-        else if (columns.isEmpty) fields
-        else columns
-      val fieldsMapping = calculateFieldsPositions(headerColumns, fields)
+      val csvHeaderColumns = if(header) parseHeader(lines.next()) else Seq.empty
+      val sourceColumns = if(header) {
+        if(customColumns.nonEmpty) csvHeaderColumns
+        else fields
+      }
+      else fields
+      val targetColumns = if(header) {
+        if(customColumns.nonEmpty) customColumns
+        else csvHeaderColumns
+      }
+      else {
+        if(customColumns.nonEmpty) customColumns
+        else fields
+      }
+
+      val fieldsMapping = calculateFieldsPositions(sourceColumns, targetColumns)
       parseContent(lines, fieldsMapping, delimiter)
     }
 

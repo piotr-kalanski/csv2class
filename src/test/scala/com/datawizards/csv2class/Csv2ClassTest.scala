@@ -100,7 +100,7 @@ class Csv2ClassTest extends FunSuite {
     val result = readCSV[Foo](
       path = "src/test/resources/foo_without_header.csv",
       header = false,
-      columns = Seq("s","i")
+      customColumns = Seq("s","i")
     )
 
     assertResult(Iterable(
@@ -155,7 +155,7 @@ class Csv2ClassTest extends FunSuite {
       path = "src/test/resources/foo_without_header_and_custom_format.csv",
       delimiter = ';',
       header = false,
-      columns = Seq("s","i")
+      customColumns = Seq("s","i")
     )
 
     assertResult(Iterable(
@@ -163,6 +163,42 @@ class Csv2ClassTest extends FunSuite {
       Foo("p2", 20),
       Foo("p3", 30),
       Foo("p;4", 40)
+    )) {
+      result._1
+    }
+
+    assertResult(true) {
+      result._2.isEmpty
+    }
+  }
+
+  test("CSV file with wrong header - same order") {
+    val result = parseCSV[Foo](
+      path = "src/test/resources/foo_wrong_header.csv",
+      customColumns = Seq("s2","i2")
+    )
+
+    assertResult(Iterable(
+      Foo("p1", 10),
+      Foo("p2", 11)
+    )) {
+      result._1
+    }
+
+    assertResult(true) {
+      result._2.isEmpty
+    }
+  }
+
+  test("CSV file with wrong header - wrong order") {
+    val result = parseCSV[Foo](
+      path = "src/test/resources/foo_wrong_header_wrong_order.csv",
+      customColumns = Seq("s2","i2")
+    )
+
+    assertResult(Iterable(
+      Foo("p1", 10),
+      Foo("p2", 11)
     )) {
       result._1
     }
