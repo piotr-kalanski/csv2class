@@ -2,7 +2,7 @@ name := "csv2class"
 
 organization := "com.github.piotr-kalanski"
 
-version := "0.3.1"
+version := "0.4.0-SNAPSHOT"
 
 scalaVersion := "2.11.8"
 
@@ -29,6 +29,8 @@ developers := List(
 libraryDependencies ++= Seq(
   "com.chuusai" %% "shapeless" % "2.3.2",
   "com.univocity" % "univocity-parsers" % "2.2.1",
+  "org.json4s" %% "json4s-native" % "3.2.11",
+  "org.json4s" %% "json4s-jackson" % "3.2.11",
   "org.scalatest" %% "scalatest" % "3.0.1" % "test",
   "junit" % "junit" % "4.10" % "test"
 )

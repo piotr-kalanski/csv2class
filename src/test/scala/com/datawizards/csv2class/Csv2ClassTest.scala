@@ -265,6 +265,57 @@ class Csv2ClassTest extends FunSuite {
     }
   }
 
+  test("Class with array") {
+    val result = parseCSV[ClassWithArray](
+      path = "src/test/resources/class_with_array.csv"
+    )
+
+    assertResult(Iterable(
+      ClassWithArray("1",Seq("1","2")),
+      ClassWithArray("2",Seq("1","2","3"))
+    )) {
+      result._1
+    }
+
+    assertResult(0) {
+      result._2.size
+    }
+  }
+
+  test("Class with struct") {
+    val result = parseCSV[ClassWithStruct](
+      path = "src/test/resources/class_with_struct.csv"
+    )
+
+    assertResult(Iterable(
+      ClassWithStruct("1",Person("p1", 10)),
+      ClassWithStruct("2",Person("p2", 20))
+    )) {
+      result._1
+    }
+
+    assertResult(0) {
+      result._2.size
+    }
+  }
+
+  test("Class with array of struct") {
+    val result = parseCSV[ClassWithArrayOfStruct](
+      path = "src/test/resources/class_with_array_of_struct.csv"
+    )
+
+    assertResult(Iterable(
+      ClassWithArrayOfStruct("1",Seq(Person("p1", 10))),
+      ClassWithArrayOfStruct("2",Seq(Person("p1", 10),Person("p2", 20),Person("p3", 30)))
+    )) {
+      result._1
+    }
+
+    assertResult(0) {
+      result._2.size
+    }
+  }
+
   private def date(year: Int, month: Int, day: Int): Date = {
     val cal = Calendar.getInstance()
     cal.set(year, month-1, day, 0, 0, 0)

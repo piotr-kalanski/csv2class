@@ -4,6 +4,8 @@ import java.util.Date
 
 import com.datawizards.metadata.ClassMetadata
 import com.univocity.parsers.csv.{CsvFormat, CsvParser, CsvParserSettings}
+import org.json4s.DefaultFormats
+import org.json4s.native.JsonMethods.parse
 import shapeless._
 
 import scala.collection.mutable.ListBuffer
@@ -13,72 +15,75 @@ import scala.util.{Failure, Success, Try}
 
 package object csv2class {
 
-  /*sealed trait FieldNamesSource
-  case object ClassFieldNamesSource extends FieldNamesSource
-  case object CsvHeaderFieldNamesSource extends FieldNamesSource
-  case object CustomFieldNamesSource extends FieldNamesSource
-  case object DefaultFieldNamesSource extends FieldNamesSource
-*/
   trait Read[A] { def reads(s: String): Try[A] }
 
   object Read {
     def apply[A](implicit readA: Read[A]): Read[A] = readA
 
-    implicit object stringRead extends Read[String] {
-      def reads(s: String): Try[String] = Success(s)
-    }
+  implicit object stringRead extends Read[String] {
+    def reads(s: String): Try[String] = Success(s)
+  }
 
-    implicit object intRead extends Read[Int] {
-      def reads(s: String) = Try(s.toInt)
-    }
+  implicit object intRead extends Read[Int] {
+    def reads(s: String) = Try(s.toInt)
+  }
 
-    implicit object longRead extends Read[Long] {
-      def reads(s: String) = Try(s.toLong)
-    }
+  implicit object longRead extends Read[Long] {
+    def reads(s: String) = Try(s.toLong)
+  }
 
-    implicit object doubleRead extends Read[Double] {
-      def reads(s: String) = Try(s.toDouble)
-    }
+  implicit object doubleRead extends Read[Double] {
+    def reads(s: String) = Try(s.toDouble)
+  }
 
-    implicit object floatRead extends Read[Float] {
-      def reads(s: String) = Try(s.toFloat)
-    }
+  implicit object floatRead extends Read[Float] {
+    def reads(s: String) = Try(s.toFloat)
+  }
 
-    implicit object shortRead extends Read[Short] {
-      def reads(s: String) = Try(s.toShort)
-    }
+  implicit object shortRead extends Read[Short] {
+    def reads(s: String) = Try(s.toShort)
+  }
 
-    implicit object booleanRead extends Read[Boolean] {
-      def reads(s: String) = Try(s.toBoolean)
-    }
+  implicit object booleanRead extends Read[Boolean] {
+    def reads(s: String) = Try(s.toBoolean)
+  }
 
-    implicit object charRead extends Read[Char] {
-      def reads(s: String) = Try(s.head)
-    }
+  implicit object charRead extends Read[Char] {
+    def reads(s: String) = Try(s.head)
+  }
 
-    implicit object byteRead extends Read[Byte] {
-      def reads(s: String) = Try(s.toByte)
-    }
+  implicit object byteRead extends Read[Byte] {
+    def reads(s: String) = Try(s.toByte)
+  }
 
-    implicit object dateRead extends Read[Date] {
-      private val format = new java.text.SimpleDateFormat("yyyy-MM-dd")
-      def reads(s: String) = Try(format.parse(s))
-    }
+  implicit object dateRead extends Read[Date] {
+    private val format = new java.text.SimpleDateFormat("yyyy-MM-dd")
+    def reads(s: String) = Try(format.parse(s))
+  }
 
-    implicit object bigIntRead extends Read[BigInt] {
-      def reads(s: String) = Try(BigInt(s))
-    }
+  implicit object bigIntRead extends Read[BigInt] {
+    def reads(s: String) = Try(BigInt(s))
+  }
 
-    implicit def optionRead[T](implicit innerRead: Read[T]): Read[Option[T]] = new Read[Option[T]] {
-      override def reads(s: String): Try[Option[T]] = {
-        if(isEmpty(s)) Success(None)
-        else {
-          val innerResult = innerRead.reads(s)
-          innerResult match {
-            case s:Success[T] => Success(Some(s.value))
-            case f:Failure[T] => Failure(f.exception)
-          }
+  implicit def optionRead[T](implicit innerRead: Read[T]): Read[Option[T]] = new Read[Option[T]] {
+    override def reads(s: String): Try[Option[T]] = {
+      if(isEmpty(s)) Success(None)
+      else {
+        val innerResult = innerRead.reads(s)
+        innerResult match {
+          case s:Success[T] => Success(Some(s.value))
+          case f:Failure[T] => Failure(f.exception)
         }
+      }
+    }
+  }
+
+  implicit def jsonRead[T](implicit mf: scala.reflect.Manifest[T]): Read[T] =
+    new Read[T] {
+      implicit val formats = DefaultFormats
+      def reads(value: String): Try[T] = {
+        val v = value
+        Try(parse(v).extract[T])
       }
     }
 

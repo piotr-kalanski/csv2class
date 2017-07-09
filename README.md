@@ -12,6 +12,7 @@ Generic CSV reader/writer with conversion to Scala case class without boilerplat
 - [Getting started](#getting-started)
 - [Examples](#examples)
 - [Versioning support](#versioning-support)
+- [Complex types](#complex-types)
 - [Customizations](#customizations)
 
 # Goals
@@ -171,6 +172,32 @@ Seq(
 )
 ```
 
+# Complex types
+
+Library supports writing fields with complex types (e.g. case class, Seq) by serializing them usin JSON format.
+
+Example:
+
+```scala
+case class ClassWithArrayOfStruct(
+  id: String,
+  people: Seq[Person]
+)
+case class Person(name: String, age: Int)
+
+val data = Seq(
+  ClassWithArrayOfStruct("1",Seq(Person("p1", 10))),
+  ClassWithArrayOfStruct("2",Seq(Person("p1", 10),Person("p2", 20),Person("p3", 30)))
+)
+
+writeCSV(data, file)
+```
+result:
+```
+id,people
+1,"[{""name"":""p1"",""age"":10}]"
+2,"[{""name"":""p1"",""age"":10},{""name"":""p2"",""age"":20},{""name"":""p3"",""age"":30}]"
+```
 
 # Customizations
 
