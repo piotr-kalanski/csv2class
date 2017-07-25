@@ -40,6 +40,25 @@ class Csv2ClassTest extends FunSuite {
     }
   }
 
+  test("Change column order - multiple") {
+    val result = parseCSV[PersonV3](
+      path = "src/test/resources/people_wrong_order.csv",
+      delimiter = ';'
+    )
+
+    assertResult(Iterable(
+      PersonV3("p1", 10, Some("Developer"), Some(1000L)),
+      PersonV3("p2", 20, None, Some(2000L)),
+      PersonV3("p3", 30, None, None)
+    )) {
+      result._1
+    }
+
+    assertResult(1) {
+      result._2.size
+    }
+  }
+
   test("All types") {
     val result = parseCSV[ClassWithAllTypes]("src/test/resources/all_types.csv")
 

@@ -165,7 +165,7 @@ package object csv2class {
             f <- targetColumns
             h <- sourceColumns
             if f == h
-          } yield targetColumns.indexOf(h) -> sourceColumns.indexOf(f)
+          } yield sourceColumns.indexOf(f) -> targetColumns.indexOf(h)
           ).toMap
 
       def parseContent(lines: Iterator[String], fieldsMapping: Map[Int, Int], delimiter: Char)
@@ -199,13 +199,12 @@ package object csv2class {
       val lines = source.getLines()
       val csvHeaderColumns = if(header) parseHeader(lines.next()) else Seq.empty
       val sourceColumns = if(header) {
-        if(customColumns.nonEmpty) csvHeaderColumns
+        if(customColumns.nonEmpty) customColumns
         else fields
       }
       else fields
       val targetColumns = if(header) {
-        if(customColumns.nonEmpty) customColumns
-        else csvHeaderColumns
+        csvHeaderColumns
       }
       else {
         if(customColumns.nonEmpty) customColumns
