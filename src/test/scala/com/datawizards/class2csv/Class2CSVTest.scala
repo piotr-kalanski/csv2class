@@ -1,12 +1,12 @@
 package com.datawizards.class2csv
 
-import com.datawizards.model.{ClassWithAllTypes, Foo, PersonV3}
+import com.datawizards.model._
 import org.junit.runner.RunWith
-import org.scalatest.FunSuite
+import org.scalatest.{FunSuite, Matchers}
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class Class2CSVTest extends FunSuite {
+class Class2CSVTest extends FunSuite with Matchers {
 
   test("Default CSV file") {
     val file = "target/foo.csv"
@@ -21,12 +21,10 @@ class Class2CSVTest extends FunSuite {
         |first,10
         |second,11""".stripMargin
 
-    assertResult(expected) {
-      readFileContent(file)
-    }
+    readFileContent(file) should equal(expected)
   }
 
-  test("All types") {
+  test("All primitive types") {
     val file = "target/all_types.csv"
     val data = Seq(
       ClassWithAllTypes("s1",1,2L,3.0,4.0f,5,bool=true,'a',6, BigInt(9999)),
@@ -39,9 +37,55 @@ class Class2CSVTest extends FunSuite {
         |s1,1,2,3.0,4.0,5,true,a,6,9999
         |s2,21,22,23.0,24.0,25,false,b,26,9999""".stripMargin
 
-    assertResult(expected) {
-      readFileContent(file)
-    }
+    readFileContent(file) should equal(expected)
+  }
+
+  test("Class with array") {
+    val file = "target/class_with_array.csv"
+    val data = Seq(
+      ClassWithArray("1",Seq("1","2")),
+      ClassWithArray("2",Seq("1","2","3"))
+    )
+
+    writeCSV(data, file)
+    val expected =
+      """id,vals
+        |1,"[""1"",""2""]"
+        |2,"[""1"",""2"",""3""]"""".stripMargin
+
+    readFileContent(file) should equal(expected)
+  }
+
+  test("Class with struct") {
+    val file = "target/class_with_struct.csv"
+    val data = Seq(
+      ClassWithStruct("1",Person("p1", 10)),
+      ClassWithStruct("2",Person("p2", 20))
+    )
+
+    writeCSV(data, file)
+    val expected =
+      """id,person
+        |1,"{""name"":""p1"",""age"":10}"
+        |2,"{""name"":""p2"",""age"":20}"""".stripMargin
+
+    readFileContent(file) should equal(expected)
+  }
+
+  test("Class with array of struct") {
+    val file = "target/class_with_array_of_struct.csv"
+    val data = Seq(
+      ClassWithArrayOfStruct("1",Seq(Person("p1", 10))),
+      ClassWithArrayOfStruct("2",Seq(Person("p1", 10),Person("p2", 20),Person("p3", 30)))
+    )
+
+    writeCSV(data, file)
+    val expected =
+      """id,people
+        |1,"[{""name"":""p1"",""age"":10}]"
+        |2,"[{""name"":""p1"",""age"":10},{""name"":""p2"",""age"":20},{""name"":""p3"",""age"":30}]"""".stripMargin
+
+    readFileContent(file) should equal(expected)
   }
 
   test("CSV file with ; delimiter") {
@@ -57,9 +101,7 @@ class Class2CSVTest extends FunSuite {
         |first;10
         |second;11""".stripMargin
 
-    assertResult(expected) {
-      readFileContent(file)
-    }
+    readFileContent(file) should equal(expected)
   }
 
   test("CSV file without header") {
@@ -74,9 +116,7 @@ class Class2CSVTest extends FunSuite {
       """first;10
         |second;11""".stripMargin
 
-    assertResult(expected) {
-      readFileContent(file)
-    }
+    readFileContent(file) should equal(expected)
   }
 
   test("CSV file with quotes") {
@@ -92,9 +132,7 @@ class Class2CSVTest extends FunSuite {
         |"first, first",10
         |"second, second",11""".stripMargin
 
-    assertResult(expected) {
-      readFileContent(file)
-    }
+    readFileContent(file) should equal(expected)
   }
 
   test("CSV file with custom header and separator") {
@@ -120,9 +158,7 @@ class Class2CSVTest extends FunSuite {
         |p3;30
         |"p;4";40""".stripMargin
 
-    assertResult(expected) {
-      readFileContent(file)
-    }
+    readFileContent(file) should equal(expected)
   }
 
   test("Write option") {
@@ -144,9 +180,7 @@ class Class2CSVTest extends FunSuite {
         |p2;20;;2000
         |p3;30;;""".stripMargin
 
-    assertResult(expected) {
-      readFileContent(file)
-    }
+    readFileContent(file) should equal(expected)
   }
 
   private def readFileContent(file: String): String =
