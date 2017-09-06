@@ -74,8 +74,19 @@ class Csv2ClassTest extends FunSuite {
     }
   }
 
-  test("Dates") {
+  test("Dates - java.util.Date") {
     val result = parseCSV[ClassWithDate]("src/test/resources/dates.csv")
+
+    assert(Math.abs(result._1.head.date.getTime - date(2000,1,2).getTime) < 1000)
+    assert(Math.abs(result._1.tail.head.date.getTime - date(2000,2,3).getTime) < 1000)
+
+    assertResult(true) {
+      result._2.isEmpty
+    }
+  }
+
+  test("Dates - java.sql.Date") {
+    val result = parseCSV[ClassWithSqlDate]("src/test/resources/dates.csv")
 
     assert(Math.abs(result._1.head.date.getTime - date(2000,1,2).getTime) < 1000)
     assert(Math.abs(result._1.tail.head.date.getTime - date(2000,2,3).getTime) < 1000)

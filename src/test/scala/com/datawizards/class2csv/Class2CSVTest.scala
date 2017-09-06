@@ -1,5 +1,8 @@
 package com.datawizards.class2csv
 
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+
 import com.datawizards.model._
 import org.junit.runner.RunWith
 import org.scalatest.{FunSuite, Matchers}
@@ -19,7 +22,7 @@ class Class2CSVTest extends FunSuite with Matchers {
     val expected =
       """s,i
         |first,10
-        |second,11""".stripMargin
+        |second,11""".stripMargin.replace("\r", "").replace("\n", "")
 
     readFileContent(file) should equal(expected)
   }
@@ -35,7 +38,7 @@ class Class2CSVTest extends FunSuite with Matchers {
     val expected =
       """str,int,long,double,float,short,bool,char,byte,bigint
         |s1,1,2,3.0,4.0,5,true,a,6,9999
-        |s2,21,22,23.0,24.0,25,false,b,26,9999""".stripMargin
+        |s2,21,22,23.0,24.0,25,false,b,26,9999""".stripMargin.replace("\r", "").replace("\n", "")
 
     readFileContent(file) should equal(expected)
   }
@@ -51,7 +54,7 @@ class Class2CSVTest extends FunSuite with Matchers {
     val expected =
       """id,vals
         |1,"[""1"",""2""]"
-        |2,"[""1"",""2"",""3""]"""".stripMargin
+        |2,"[""1"",""2"",""3""]"""".stripMargin.replace("\r", "").replace("\n", "")
 
     readFileContent(file) should equal(expected)
   }
@@ -67,7 +70,7 @@ class Class2CSVTest extends FunSuite with Matchers {
     val expected =
       """id,person
         |1,"{""name"":""p1"",""age"":10}"
-        |2,"{""name"":""p2"",""age"":20}"""".stripMargin
+        |2,"{""name"":""p2"",""age"":20}"""".stripMargin.replace("\r", "").replace("\n", "")
 
     readFileContent(file) should equal(expected)
   }
@@ -83,7 +86,7 @@ class Class2CSVTest extends FunSuite with Matchers {
     val expected =
       """id,people
         |1,"[{""name"":""p1"",""age"":10}]"
-        |2,"[{""name"":""p1"",""age"":10},{""name"":""p2"",""age"":20},{""name"":""p3"",""age"":30}]"""".stripMargin
+        |2,"[{""name"":""p1"",""age"":10},{""name"":""p2"",""age"":20},{""name"":""p3"",""age"":30}]"""".stripMargin.replace("\r", "").replace("\n", "")
 
     readFileContent(file) should equal(expected)
   }
@@ -99,7 +102,7 @@ class Class2CSVTest extends FunSuite with Matchers {
     val expected =
       """s;i
         |first;10
-        |second;11""".stripMargin
+        |second;11""".stripMargin.replace("\r", "").replace("\n", "")
 
     readFileContent(file) should equal(expected)
   }
@@ -114,7 +117,7 @@ class Class2CSVTest extends FunSuite with Matchers {
     writeCSV(data, file, delimiter = ';', header = false)
     val expected =
       """first;10
-        |second;11""".stripMargin
+        |second;11""".stripMargin.replace("\r", "").replace("\n", "")
 
     readFileContent(file) should equal(expected)
   }
@@ -130,7 +133,7 @@ class Class2CSVTest extends FunSuite with Matchers {
     val expected =
       """s,i
         |"first, first",10
-        |"second, second",11""".stripMargin
+        |"second, second",11""".stripMargin.replace("\r", "").replace("\n", "")
 
     readFileContent(file) should equal(expected)
   }
@@ -156,7 +159,7 @@ class Class2CSVTest extends FunSuite with Matchers {
         |p1;10
         |p2;20
         |p3;30
-        |"p;4";40""".stripMargin
+        |"p;4";40""".stripMargin.replace("\r", "").replace("\n", "")
 
     readFileContent(file) should equal(expected)
   }
@@ -178,12 +181,56 @@ class Class2CSVTest extends FunSuite with Matchers {
       """name;age;title;salary
         |p1;10;Developer;1000
         |p2;20;;2000
-        |p3;30;;""".stripMargin
+        |p3;30;;""".stripMargin.replace("\r", "").replace("\n", "")
+
+    readFileContent(file) should equal(expected)
+  }
+
+  test("Write java.util.Date") {
+    val file = "target/java_util_date.csv"
+    val data = Seq(
+      ClassWithDate(new SimpleDateFormat("yyyy-MM-dd").parse("2000-01-02")),
+      ClassWithDate(new SimpleDateFormat("yyyy-MM-dd").parse("2001-02-03")),
+      ClassWithDate(new SimpleDateFormat("yyyy-MM-dd").parse("2002-03-04"))
+    )
+
+    writeCSV(
+      data = data,
+      path = file,
+      delimiter = ';'
+    )
+    val expected =
+      """date
+        |2000-01-02
+        |2001-02-03
+        |2002-03-04""".stripMargin.replace("\r", "").replace("\n", "")
+
+    readFileContent(file) should equal(expected)
+  }
+
+  test("Write java.sql.Date") {
+    val file = "target/java_sql_date.csv"
+    val data = Seq(
+      ClassWithSqlDate(java.sql.Date.valueOf("2000-01-02")),
+      ClassWithSqlDate(java.sql.Date.valueOf("2001-02-03")),
+      ClassWithSqlDate(java.sql.Date.valueOf("2002-03-04"))
+    )
+
+    writeCSV(
+      data = data,
+      path = file,
+      delimiter = ';'
+    )
+    val expected =
+      """date
+        |2000-01-02
+        |2001-02-03
+        |2002-03-04""".stripMargin.replace("\r", "").replace("\n", "")
 
     readFileContent(file) should equal(expected)
   }
 
   private def readFileContent(file: String): String =
-    scala.io.Source.fromFile(file).getLines().mkString("\n")
+    scala.io.Source.fromFile(file).getLines().mkString("").replace("\r", "").replace("\n", "")
 
 }

@@ -25,7 +25,7 @@ Generic CSV reader/writer with conversion to Scala case class without boilerplat
 Include dependency:
 
 ```scala
-"com.github.piotr-kalanski" % "csv2class_2.11" % "0.3.1"
+"com.github.piotr-kalanski" % "csv2class_2.11" % "0.3.3"
 ```
 
 or
@@ -34,7 +34,7 @@ or
 <dependency>
     <groupId>com.github.piotr-kalanski</groupId>
     <artifactId>csv2class_2.11</artifactId>
-    <version>0.3.1</version>
+    <version>0.3.3</version>
 </dependency>
 ```
 
