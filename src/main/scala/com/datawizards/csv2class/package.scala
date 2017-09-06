@@ -4,7 +4,7 @@ import java.util.Date
 
 import com.datawizards.metadata.ClassMetadata
 import com.univocity.parsers.csv.{CsvFormat, CsvParser, CsvParserSettings}
-import org.json4s.DefaultFormats
+import org.json4s.{DefaultFormats, Formats}
 import org.json4s.native.JsonMethods.parse
 import shapeless._
 
@@ -61,6 +61,10 @@ package object csv2class {
     def reads(s: String) = Try(format.parse(s))
   }
 
+  implicit object dateSqlRead extends Read[java.sql.Date] {
+    def reads(s: String) = Try(java.sql.Date.valueOf(s))
+  }
+
   implicit object bigIntRead extends Read[BigInt] {
     def reads(s: String) = Try(BigInt(s))
   }
@@ -80,7 +84,7 @@ package object csv2class {
 
   implicit def jsonRead[T](implicit mf: scala.reflect.Manifest[T]): Read[T] =
     new Read[T] {
-      implicit val formats = DefaultFormats
+      implicit val formats: Formats = DefaultFormats
       def reads(value: String): Try[T] = {
         val v = value
         Try(parse(v).extract[T])

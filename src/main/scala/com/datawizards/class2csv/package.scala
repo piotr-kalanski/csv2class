@@ -7,7 +7,7 @@ import com.datawizards.metadata.ClassMetadata
 import com.univocity.parsers.csv.CsvWriter
 import com.univocity.parsers.csv.CsvWriterSettings
 import org.json4s.jackson.JsonMethods
-import org.json4s.{DefaultFormats, Extraction}
+import org.json4s.{DefaultFormats, Extraction, Formats}
 import shapeless._
 
 import scala.reflect.ClassTag
@@ -62,6 +62,9 @@ package object class2csv {
     createFieldEncoder(num => List(num.toString))
 
   implicit val dateEnc: FieldCsvEncoder[Date] =
+    createFieldEncoder(date => List(date.formatted("%tY-%1$tm-%1$td"))) // https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html
+
+  implicit val dateSqlEnc: FieldCsvEncoder[java.sql.Date] =
     createFieldEncoder(date => List(date.toString))
 
   implicit val bigIntEnc: FieldCsvEncoder[BigInt] =
@@ -76,7 +79,7 @@ package object class2csv {
 
   def jsonEncoder[T]: FieldCsvEncoder[T] =
     new FieldCsvEncoder[T] {
-      implicit val formats = DefaultFormats
+      implicit val formats: Formats = DefaultFormats
       def encode(value: T): List[String] = {
         val json = Extraction.decompose(value)(formats)
         List(JsonMethods.mapper.writeValueAsString(json))
